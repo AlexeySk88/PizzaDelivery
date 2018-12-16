@@ -1,0 +1,21 @@
+{
+    "name": "delivery/pizza",
+    "description": "test task for the calculation of pizza delivery to hungry customers",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "alexeysk88",
+            "email": "40878975+AlexeySk88@users.noreply.github.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "7"
+    },
+   "autoload": {
+        "psr-4": {
+          "PD\\":"src/"
+        }
+    }
+}
