@@ -33,13 +33,7 @@ class RoutTest extends TestCase
 		unset($this->mock3);
 	}
 
-	public function testStart(){
-		$arr = array($this->mock1, $this->mock2, $this->mock3);
-        $res = $this->router->start($arr); 
-        $this->assertSame($arr,$res);
-	}
-
-	public function matrixProvider(){
+	public function prodInMatrixProvider(){
 		$this->mock1 = $this->createmock('PD\order\Cook');
         $this->mock1->method('getTime')->will($this->returnValue(new \DateTime('2018-12-01 10:0:0')));
         $this->mock1->method('getAddress')->will($this->returnValue(array(400,500)));
@@ -72,14 +66,14 @@ class RoutTest extends TestCase
 	}
 
 	/**
-	*@dataProvider matrixProvider
+	*@dataProvider prodInMatrixProvider
 	*/
-	public function testMatrix($arr, $expected){
-		$res = $this->router->matrix($arr, new \DateTime('2018-12-01 10:0:0'));
+	public function testProdInMatrix($arr, $expected){
+		$res = $this->router->prodInMatrix($arr, new \DateTime('2018-12-01 10:0:0'));
 		$this->assertSame($res, $expected);
 	}
 
-	public function tablePdovider(){
+	public function tableProvider(){
 		$line1 = [PHP_INT_MAX, 640, 500, 1140];
 		$line2 = [640, PHP_INT_MAX, 141, 500];
 		$line3 = [500, 141, PHP_INT_MAX, 640];
@@ -98,7 +92,7 @@ class RoutTest extends TestCase
 
 
 	/**
-	*@dataProvider tablePdovider
+	*@dataProvider tableProvider
 	*/
 	public function testMatrixInTable($expected, $matr){
 		$res = $this->router->matrixInTable($matr);
@@ -125,12 +119,19 @@ class RoutTest extends TestCase
 		];
 	}
 
+	public function callbackCheckTine(){
+		$args = func_get_args();		
+	}
+
 	/**
 	*@dataProvider checkTimeProvider()
 	*/
 	public function testCheckTime($prod, $table, $expected){
-
-		$res = $this->router->checkTime($prod, $table, new \DateTime('2018-12-01 10:0:0'));
+		$res = [];
+		$arr = $this->router->checkTime($prod, $table, new \DateTime('2018-12-01 10:0:0'));
+		foreach ($arr as $value) {
+			$res[] = $value->getTime()->format('H:i:s');
+		}
 		$this->assertSame($res, $expected);
 	}
 

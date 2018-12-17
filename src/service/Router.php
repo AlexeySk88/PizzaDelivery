@@ -8,28 +8,35 @@ use PD\order\Delivery;
 
 
 class Router implements Service{
-	private $delivMan = [];
+	private $delivArr = [];
 	private const MAXDELIV = 3;
 	private const MAXTIME = 60;
 	private $startTime;
 	private $num = 1;
 
 	public function require(Product $prod){
-		/*if(count($this->delivMan) == self::MAXDELIV) $this->start($this->delivMan);
+		if(count($this->delivArr) == self::MAXDELIV){
+			$this->delivArr = [];
+			$this->num++;
+		}
 		$this->startTime = $prod->getTime() > $this->startTime ? $prod->getTime() : $this->startTime;
 		$deliv = new Delivery($prod);
-		$this->delivMan[] = $deliv;
-		if($this->matrix($this->startTime)){
-			foreach ($this->delivMan as $man) {
-				$man->status();
-			}
-			return false;
+		$this->delivArr[] = $deliv;
+		$matrixDeliv = $this->prodInMatrix($this->delivArr, $this->startTime);
+		$tableDeliv = $this->matrixInTable($matrixDeliv);
+		if($tableDeliv){
+			$this->delivArr = [];
+			$this->num++;
+			return false;			
 		}
-		$this->start($this->delivMan);*/
-		$this->matrix($this->delivMan, $prod->getTime());
+		$res = $this->checkTime($this->delivArr, $tableDeliv, $this->startTime);
+		foreach ($this->delivArr as $man) {
+			$man->status();
+		}
+		return $res;
 	}
 
-	public function matrix(array $prods, \DateTime $time){  //private
+	public function prodInMatrix(array $prods, \DateTime $time){  //private
 		$routMatrix = [];
 		$arr[0] = array(0, 0);
 		foreach ($prods as $p) {
@@ -42,9 +49,9 @@ class Router implements Service{
 				$routMatrix[$i][$j] = $res == 0 ? PHP_INT_MAX : $res;
 			}
 		}
-		/*if(count($this->delivMan) == 1) {
+		/*if(count($this->delivArr) == 1) {
 			$time->modify('+ '.$routMatrix[0][1].'second');
-			$this->delivMan[0]->setTime($time);
+			$this->delivArr[0]->setTime($time);
 			return true;
 		}*/
 		/*for($i = 0; $i < count($routMatrix); $i++){
@@ -80,19 +87,14 @@ class Router implements Service{
 		foreach ($table as $key => $value) {
 			$time->modify('+ '.$value.' second');
 			$rout = $prod[$key-1]->setTime($time);
-/*			if($rout->getTime > self::MAXTIME){
-				$this->routMatrix[$key] = PHP_INT_MAX;
-				return $this->matrixInTable();
-			}*/
-			$finishRouts[] = $time->format('H:i:s');
+			if($rout->getInterval($time) >= self::MAXTIME){
+				$index = array_keys($matrixDeliv[$key], min($matrixDeliv[$key]));
+				$this->$matrixDeliv[$key][$index] = PHP_INT_MAX;
+				return $this->matrixInTable($this->matrixDeliv);
+			}
+			$finishRouts[] = $rout;
 		}
 		return $finishRouts;
-	}
-
-	public function start(array $prod){ //private
-		$this->delivMan = [];
-		$this->num++;
-		return $prod;
 	}
 }
 
