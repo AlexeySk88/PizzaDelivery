@@ -1,41 +1,28 @@
 <?php
 use PHPUnit\Framework\TestCase;
-use PD\order\Cook;
-use PD\oreder\Delivery;
+use PD\order\Pizza;
 use PD\service\Router;
+use PD\service\Oven;
 
 class RouterRequireTest extends TestCase{
 	private $rout;
+    private $oven;
 
-	public function setUp(){
-		$this->rout = new Router();
-	}
-
-	public function tearDown(){
-		$this->rout = null;
-	}
-
-	public function testGeneral(){
-		$cook1 = $this->createmock('PD\order\Cook');
-        $cook1->method('getTime')->will($this->returnValue(new \DateTime('2018-12-01 10:0:0')));
-        $cook1->method('getAddress')->will($this->returnValue(array(400,500)));
-        $cook1->method('getInterval')->will($this->returnValue('10'));
-        $res = $this->rout->require($cook1);
-        $this->assertSame($res->getTime()->format('H:i:s'), '10:10:40');
-	}
+        public function tearDown(){
+        $this->oven = NULL;
+        $this->rout = NULL;
+    }
 
 	public function Provider(){
-		$cook1 = $this->createmock('PD\order\Cook');
-        $cook1->method('getTime')->will($this->returnValue(new \DateTime('2018-12-01 10:0:0')));
-        $cook1->method('getAddress')->will($this->returnValue(array(400,500)));
+        $this->oven = new Oven();
+        $prod1 = new Pizza(new \DateTime('2018-12-01 10:0:0'), [400, 500]);
+        $cook1 = $this->oven->require($prod1);
 
-		$cook2 = $this->createmock('PD\order\Cook');
-		$cook2->method('getTime')->will($this->returnValue(new \DateTime('2018-12-01 10:0:0')));
-		$cook2->method('getAddress')->will($this->returnValue(array(300,400)));
+        $prod2 = new Pizza(new \DateTime('2018-12-01 10:0:0'), [300, 400]);
+        $cook2 = $this->oven->require($prod2);  
 
-		$cook3 = $this->createmock('PD\order\Cook');
-		$cook3->method('getTime')->will($this->returnValue(new \DateTime('2018-12-01 10:0:0')));
-        $cook3->method('getAddress')->will($this->returnValue(array(700,900)));
+        $prod3 = new Pizza(new \DateTime('2018-12-01 10:0:0'), [700, 900]);
+        $cook3 = $this->oven->require($prod3);
 
         $expect1 = ['10:10:40'];
         $expect2 = ['10:08:20','10:10:41'];
@@ -52,6 +39,7 @@ class RouterRequireTest extends TestCase{
     *@dataProvider Provider
     */
     public function testRequire($arr, $expect){
+        $this->rout = new Router();
     	$res = [];
     	foreach ($arr as $cook) {
  			$res = $this->rout->require($cook);

@@ -9,6 +9,7 @@ use PD\order\Delivery;
 
 class Router implements Service{
 	private $delivArr = [];
+	private $matrixDeliv = [];
 	private const MAXDELIV = 3;
 	private const MAXTIME = 60;
 	private $startTime;
@@ -22,16 +23,16 @@ class Router implements Service{
 		$this->startTime = $prod->getTime() > $this->startTime ? $prod->getTime() : $this->startTime;
 		$deliv = new Delivery($prod);
 		$this->delivArr[] = $deliv;
-		$matrixDeliv = $this->prodInMatrix($this->delivArr, $this->startTime);
-		$tableDeliv = $this->matrixInTable($matrixDeliv);
-		if($tableDeliv){
+		$this->matrixDeliv = $this->prodInMatrix($this->delivArr, $this->startTime);
+		$tableDeliv = $this->matrixInTable($this->matrixDeliv);
+		if(!$tableDeliv){
 			$this->delivArr = [];
 			$this->num++;
 			return false;			
 		}
 		$res = $this->checkTime($this->delivArr, $tableDeliv, $this->startTime);
-		foreach ($this->delivArr as $man) {
-			$man->status();
+		foreach ($res as $value) {
+			$value->status();
 		}
 		return $res;
 	}
@@ -76,7 +77,7 @@ class Router implements Service{
 			}
 			else {
 				$index = $checkKey;
-				$routTable[$index] = $var;		
+				$routTable[$index] = $var;	
 			}	
 		}
 		return $routTable;		
@@ -86,12 +87,13 @@ class Router implements Service{
 		$finishRouts = [];
 		foreach ($table as $key => $value) {
 			$time->modify('+ '.$value.' second');
-			$rout = $prod[$key-1]->setTime($time);
+			$rout = $prod[$key-1];
 			if($rout->getInterval($time) >= self::MAXTIME){
-				$index = array_keys($matrixDeliv[$key], min($matrixDeliv[$key]));
-				$this->$matrixDeliv[$key][$index] = PHP_INT_MAX;
+				$index = array_keys($this->matrixDeliv[$key], min($this->matrixDeliv[$key]));
+				$this->matrixDeliv[$key][$index] = PHP_INT_MAX;
 				return $this->matrixInTable($this->matrixDeliv);
 			}
+			$rout->setTime(clone $time);
 			$finishRouts[] = $rout;
 		}
 		return $finishRouts;

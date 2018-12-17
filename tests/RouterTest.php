@@ -99,43 +99,6 @@ class RoutTest extends TestCase
 		$this->assertSame($res, $expected);
 	}
 
-	public function checkTimeProvider(){
-		$this->mock1 = $this->createmock('PD\order\Cook');
-        $this->mock1->method('getTime')->will($this->returnValue(new \DateTime('2018-12-01 10:0:0')));
-        $this->mock1->method('getAddress')->will($this->returnValue([400,500]));
-
-        $this->mock2 = $this->createmock('PD\order\Cook');
-        $this->mock2->method('getTime')->will($this->returnValue(new \DateTime('2018-12-01 10:0:0')));
-        $this->mock2->method('getAddress')->will($this->returnValue([300,400]));
-
-        $this->mock3 = $this->createmock('PD\order\Cook');
-        $this->mock3->method('getTime')->will($this->returnValue(new \DateTime('2018-12-01 10:0:0')));
-        $this->mock3->method('getAddress')->will($this->returnValue([700,900]));
-		return [
-			[[$this->mock1], [1=>640], ['10:10:40']],
-			[[$this->mock1, $this->mock2], [2=>500, 1=>141], ['10:08:20','10:10:41']],
-			[[$this->mock1, $this->mock2, $this->mock3], [2=>500, 1=>141, 3=>500], ['10:08:20','10:10:41',
-				'10:19:01']]
-		];
-	}
-
-	public function callbackCheckTine(){
-		$args = func_get_args();		
-	}
-
-	/**
-	*@dataProvider checkTimeProvider()
-	*/
-	public function testCheckTime($prod, $table, $expected){
-		$res = [];
-		$arr = $this->router->checkTime($prod, $table, new \DateTime('2018-12-01 10:0:0'));
-		foreach ($arr as $value) {
-			$res[] = $value->getTime()->format('H:i:s');
-		}
-		$this->assertSame($res, $expected);
-	}
-
-
 	/*
 		0	0
 		400	500

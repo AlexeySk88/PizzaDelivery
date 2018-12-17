@@ -25,16 +25,16 @@ class Application{
     public function begin(){
         for($i = 0; $i < $numOrder; $i++){
             $this->timeOrder->modify('+ '.rand(1, 30). ' minutes');
-            $this->stackOrder[] = new Pizza($timeOrder, array(rand(-1000, 1000), rand(-1000, 1000)));
+            $this->stackOrder[] = new Pizza($timeOrder, [rand(-1000, 1000), rand(-1000, 1000)]);
             $this->config();
         }
     }
 
     public function testBegin(){
-        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:0:0'), array(150, 400));
-        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:15:0'), array(500, 800));
-        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:40:0'), array(300, 200));
-        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:48:0'), array(300, 800)); 
+        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:0:0'), [150, 400]);
+        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:15:0'), [500, 800]);
+        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:40:0'), [300, 200]);
+        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:48:0'), [300, 800]); 
         $this->config(); 
     }
 
