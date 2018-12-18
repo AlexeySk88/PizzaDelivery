@@ -2,20 +2,20 @@
 
 namespace PD\order;
 
-use PD\order\Product;
+use PD\iface\Product;
 
 class Pizza implements Product{
+	private static $counter = 1;
+	private $id;
 	protected $address;
 	protected $cookPeriod;
 	protected $orderTime;
 
 	public function __construct(\DateTime $orderTime, $address){
-		if(is_array($address)) {
-			$this->address = $address;
-			$this->orderTime = $orderTime;
-			$this->cookPeriod = rand(10, 30);
-		}
-		else throw new Exception('Constructor of class Pizza: $address is not an array type');		// отдельный файл
+		$this->id = self::$counter++;
+		$this->address = $address;
+		$this->orderTime = $orderTime;
+		$this->cookPeriod = rand(10, 30);
 	}
 
 	public function __get($name){
@@ -37,7 +37,7 @@ class Pizza implements Product{
 	}
 
 	public function status(){
-		print('Время заказа '.$this->orderTime->format('Y-m-d H:i:s'));
+		return '<'.$this->id.'>< '.$this->orderTime->format('H:i:s').'>';
 	}
 
 	public function __isset($name){

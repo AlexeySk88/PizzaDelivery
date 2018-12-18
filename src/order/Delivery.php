@@ -15,7 +15,8 @@ class Delivery extends Decorator{
 	}
 
 	public function status(){
-		print(' Время доставки '.$this->delivTime->format(parent::date_format()));
+		$arr = parent::getAddress();
+		return '<'.$arr[0].'><'.$arr[1].'><br>';
 	}
 }
 

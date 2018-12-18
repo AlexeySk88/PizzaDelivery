@@ -2,8 +2,8 @@
 
 namespace PD\service;
 
-use PD\service\Service;
-use PD\order\Product;
+use PD\iface\Service;
+use PD\iface\Product;
 use PD\order\Cook;
 
 class Oven implements Service{

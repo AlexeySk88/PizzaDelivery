@@ -1,5 +1,5 @@
 <?php 
-namespace PD\service;
+namespace PD\iface;
 
 use PD\order\Product;
 

@@ -17,7 +17,7 @@ class Cook extends Decorator{
 	}
 
 	public function status(){
-		print(' Время приготовления '.$this->cookTime->format(parent::date_format()));
+		return '<'.$this->cookTime->format('H:i:s').'>';
 	}
 }
 ?>

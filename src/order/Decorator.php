@@ -2,7 +2,7 @@
 
 namespace PD\order;
 
-use PD\order\Product;
+use PD\iface\Product;
 
 
 abstract class Decorator implements Product{
