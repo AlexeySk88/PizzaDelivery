@@ -26,14 +26,16 @@ abstract class Decorator implements Product{
 		return $p->getInterval($date);
 	}
 
-	public function __get($name){
-		return $this->$name;
-	}
-
 	public function getAddress(){
 		$p = self::getProduct();
 		if(!isset($p->address)) return $p->getAddress();
 		return $p->address;
+	}
+
+	public function __get($name){
+		$p = self::getProduct();
+		if(!isset($p->$name)) return $p->$name();
+		return $p->$name;
 	}
 
 
@@ -43,7 +45,7 @@ abstract class Decorator implements Product{
 		return $p->cookPeriod;
 	}
 
-	abstract public function status();
+	abstract public function status(): string;
 	abstract public function setTime(\DateTime $time);
 	abstract public function getTime(): \DateTime;
 }

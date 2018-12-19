@@ -12,7 +12,7 @@ class Oven implements Service{
 	public function require(Product $prod){
 		if(!$this->ovenArr) $this->ovenArr = [$prod->getTime(), clone $prod->getTime()];
 		$index = $this->ovenArr[0] <= $this->ovenArr[1]? 0 : 1;
-		$this->ovenArr[$index] = max($this->ovenArr[$index], $prod->getTime())->modify('+ '.$prod->cookPeriod().' minutes');
+		$this->ovenArr[$index] = max($this->ovenArr[$index], $prod->getTime())->modify('+ '.$prod->cookPeriod.' minutes');
 		$cook = new Cook($prod);
 		$cook->setTime($this->ovenArr[$index]);
 		$cook->status();

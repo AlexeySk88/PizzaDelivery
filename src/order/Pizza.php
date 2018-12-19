@@ -36,7 +36,7 @@ class Pizza implements Product{
 		return $this->orderTime;
 	}
 
-	public function status(){
+	public function status():string {
 		return '<'.$this->id.'>< '.$this->orderTime->format('H:i:s').'>';
 	}
 

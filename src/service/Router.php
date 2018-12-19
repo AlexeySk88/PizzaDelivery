@@ -11,7 +11,7 @@ use PD\order\Delivery;
 
 class Router implements Service, Waylbill{
 	private $prodArr = [];
-	private $routArr = [];
+	private $invoice;
 	private $matrixDeliv = [];
 	private const MAXDELIV = 3;
 	private const MAXTIME = 60;
@@ -34,11 +34,13 @@ class Router implements Service, Waylbill{
 			$this->startTime = null;
 			return $this->require($prod);			
 		}
-		$this->routArr = $res = $this->checkTime($this->prodArr, $tableDeliv, $this->startTime);
+		$this->invoice = null;
+		$this->invoice = new Invoice($this->num);
+		$res = $this->checkTime($this->prodArr, $tableDeliv, $this->startTime);
 		return $res;
 	}
 
-	public function prodInMatrix(array $prods){  //private
+	private function prodInMatrix(array $prods){  //private
 		$routMatrix = [];
 		$arr[0] = array(0, 0);
 		foreach ($prods as $p) {
@@ -53,7 +55,7 @@ class Router implements Service, Waylbill{
 		return $routMatrix;
 	}
 
-	public function matrixInTable(array $matr){  //private
+	private function matrixInTable(array $matr){  //private
 		$routTable = [];
 		$index = 0;
 		for($i = 0; $i < count($matr)-1; $i++){
@@ -72,37 +74,25 @@ class Router implements Service, Waylbill{
 		return $routTable;		
 	}
 
-	public function checkTime(array $prods, array $table, \DateTime $time){  //private
+	private function checkTime(array $prods, array $table, \DateTime $time){  //private
 		foreach ($table as $key => $value) {
 			$time->modify('+ '.$value.' second');
 			$prod = $prods[$key-1];
 			if($prod->getInterval($time) >= self::MAXTIME){
-				$index = array_keys($this->matrixDeliv[$key], min($this->matrixDeliv[$key]));
+				$index = array_search(min($this->matrixDeliv[$key]), $this->matrixDeliv[$key]);
 				$this->matrixDeliv[$key][$index] = PHP_INT_MAX;
 				return $this->matrixInTable($this->matrixDeliv);
 			}
 			$rout = new Delivery($prod);
 			$rout->setTime(clone $time);
+			$this->invoice->add(clone $time);
 			$prods[$key-1] = $rout;
 		}
 		return $prods;
 	}
 
 	public function getOrder(){
-		usort($this->routArr, 'cmp');
-
-		foreach ($this->routArr as $value) {
-			
-		}
-	}
-
-	private function cmp($a, $b){
-		$at = $a->getTime();
-		$bt = $b->getTime();
-		if ($at == $bt) {
-	        return 0;
-	    }
-	    return ($at < $bt) ? -1 : 1;
+		return $this->invoice;
 	}
 }
 

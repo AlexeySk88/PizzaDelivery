@@ -1,17 +1,24 @@
 <?php 
 namespace PD\order;
 
-class Invoce{
+class Invoice{
 	private $id;
-	private $delivTime;
+	private $timeArr = [];
 
-	public function __construct($id, $time){
+	public function __construct($id){
 		$this->id = $id;
-		$this->delivTime = $time;
 	}
 
-	public function __toString(){
-		return '<'.$this->id.'><'.$this->delivTime.'><br>';
+	public function add($time){
+		$this->timeArr[] = $time;
+	}
+
+	public function toConsole(){
+		$str = '';
+		foreach ($this->timeArr as $time) {
+			$str .= '<'.$this->id.'><'.$time->format('H:i:s').'>';
+		}
+		echo("<script>console.log(".$str."');</script>");
 	}
 }
 ?>

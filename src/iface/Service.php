@@ -1,7 +1,7 @@
 <?php 
 namespace PD\iface;
 
-use PD\order\Product;
+use PD\iface\Product;
 
 interface Service{
 	public function require(Product $prod);

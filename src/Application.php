@@ -5,49 +5,65 @@ namespace PD;
 use PD\order\Pizza;
 use PD\service\Oven;
 use PD\service\Router;
+use PD\order\Invoice;
 
 
 class Application{
     private $timeOrder;
     private $numOrder;
     private $stackOrder;
+    private $stackInvoice;
     private $oven;
     private $deliv;
     
     public function __construct(){
         $this->timeOrder = new \DateTime('2018-12-01 10:0:0');
-        $this->numOrder = rand(10, 100); //кол-во заказов
+        $this->numOrder = rand(10, 100); //кол-во заказов 
         $this->stackOrder = new \SplStack(); 
+        $this->stackInvoice = new \SplStack();
         $this->oven = new Oven();
         $this->deliv = new Router(); 
     }
 
-    public function begin(){
-        for($i = 0; $i < $numOrder; $i++){
+    public function main(){
+        for($i = 0; $i < $this->numOrder; $i++){
             $this->timeOrder->modify('+ '.rand(1, 30). ' minutes');
-            $this->stackOrder[] = new Pizza($timeOrder, [rand(-1000, 1000), rand(-1000, 1000)]);
-            $this->config();
+            $this->stackOrder[] = new Pizza(clone $this->timeOrder, [rand(-1000, 1000), rand(-1000, 1000)]);
         }
+        $this->calc();        
     }
 
-    public function testBegin(){
-        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:0:0'), [150, 400]);
-        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:15:0'), [500, 800]);
-        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:40:0'), [300, 200]);
-        $this->stackOrder[] = new Pizza(new \DateTime('2018-12-01 10:48:0'), [300, 800]); 
-        $this->config(); 
-    }
-
-    private function config(){
+    private function calc(){
+        $delivpizza = null;
+        $invoice = [];
         $this->stackOrder->rewind();
         while($this->stackOrder->valid()){
             $s =  $this->stackOrder->current();
-            $s->status();
             $hotpizza = $this->oven->require($s);
-            $delivpizza = $this->deliv->require($hotpizza);
-            print('<br>');
+            $delivres = $this->deliv->require($hotpizza);
+            if(!$delivres) $delivres = $this->deliv->require($hotpizza);
+            if(is_null($delivpizza)) $delivpizza = $delivres;
+            else if(count($delivres) < count($delivpizza)){
+                foreach ($delivpizza as $dp) print(htmlspecialchars($dp->status()));
+                print('<br>');
+                $this->stackInvoice[] = $invoice;
+                $delivpizza = null;
+            }
+            $delivpizza = $delivres;
+            $invoice[] = $this->deliv->getOrder();
             $this->stackOrder->next();
         }
+        foreach ($delivpizza as $dp) print($dp->status());
+        print('<br>');
+        $this->stackInvoice[] = $invoice;
+        $this->stackInvoice->rewind();
+        print(count($this->stackInvoice));
+        while($this->stackInvoice->valid()){
+            $invoice = $this->stackInvoice->current();
+            $invoice->toConsole();
+            $this->stackInvoice->next();
+        }
+        print('<br>END');
     }
 }
 ?>
