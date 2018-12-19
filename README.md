@@ -1,6 +1,6 @@
 PizzaDelivery
 ================
-Quick start:
-composer install
+##### Quick start:
+composer install<br>
 php index.php
 
