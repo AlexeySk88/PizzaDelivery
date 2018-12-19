@@ -16,9 +16,9 @@ class Invoice{
 	public function toConsole(){
 		$str = '';
 		foreach ($this->timeArr as $time) {
-			$str .= '<'.$this->id.'><'.$time->format('H:i:s').'>';
+			$str .= '<'.$time->format('H:i:s').'>';
 		}
-		echo("console.log(".$str.");");
+		print('console.log("<'.$this->id.'>'.$str.'");');
 	}
 }
 ?>

@@ -24,14 +24,20 @@ class Router implements Service, Waylbill{
 			$this->num++;
 			$this->startTime = null;
 		}
-		$this->startTime = $prod->getTime() > $this->startTime ? $prod->getTime() : $this->startTime;
+		$this->startTime = clone $prod->getTime() > $this->startTime ? $prod->getTime() : $this->startTime;
 		$this->prodArr[] = $prod;
 		$this->matrixDeliv = $this->prodInMatrix($this->prodArr);
 		$tableDeliv = $this->matrixInTable($this->matrixDeliv);
+		if(!$tableDeliv){
+			$this->prodArr = [];
+			$this->num++;
+			$this->startTime = null;
+			return $this->require($prod);
+		}
 		$res = $this->checkTime($this->prodArr, $tableDeliv, $this->startTime);
 		if(!$res){
 			$this->prodArr = [];
-			$this->num++;
+			//$this->num++;
 			$this->startTime = null;
 			return $this->require($prod);
 		}
@@ -73,6 +79,7 @@ class Router implements Service, Waylbill{
 	}
 
 	private function checkTime(array $prods, array $table, \DateTime $time){  //private
+		$this->invoice = new Invoice($this->num);
 		foreach ($table as $key => $value) {
 			$time->modify('+ '.$value.' second');
 			$prod = $prods[$key-1];
@@ -87,9 +94,7 @@ class Router implements Service, Waylbill{
 			}
 			$rout = new Delivery($prod);
 			$rout->setTime(clone $time);
-			$this->invoice = null;
-			$this->invoice = new Invoice($this->num);
-			$this->invoice->add(clone $time);
+			$this->invoice->add($time);
 			$prods[$key-1] = $rout;
 		}
 		return $prods;
