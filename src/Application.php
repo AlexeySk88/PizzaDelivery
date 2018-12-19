@@ -35,34 +35,35 @@ class Application{
 
     private function calc(){
         $delivpizza = null;
+        $res;
         $invoice = [];
         $this->stackOrder->rewind();
         while($this->stackOrder->valid()){
             $s =  $this->stackOrder->current();
             $hotpizza = $this->oven->require($s);
-            $delivres = $this->deliv->require($hotpizza);
-            if(!$delivres) $delivres = $this->deliv->require($hotpizza);
-            if(is_null($delivpizza)) $delivpizza = $delivres;
-            else if(count($delivres) < count($delivpizza)){
-                foreach ($delivpizza as $dp) print(htmlspecialchars($dp->status()));
-                print('<br>');
+            $res = $this->deliv->require($hotpizza);
+            if(!$delivpizza) $delivpizza = $res;
+            else if(count($res) < count($delivpizza)){
+                foreach ($delivpizza as $dp) print(htmlspecialchars($dp->status()).'<br>');
                 $this->stackInvoice[] = $invoice;
-                $delivpizza = null;
+                $res = $this->deliv->require($hotpizza);
             }
-            $delivpizza = $delivres;
+            $delivpizza = $res;
             $invoice[] = $this->deliv->getOrder();
             $this->stackOrder->next();
         }
-        foreach ($delivpizza as $dp) print($dp->status());
+        foreach ($delivpizza as $dp) print($dp->status().'<br>');
         print('<br>');
         $this->stackInvoice[] = $invoice;
         $this->stackInvoice->rewind();
         print(count($this->stackInvoice));
+        print('<script>');
         while($this->stackInvoice->valid()){
             $invoice = $this->stackInvoice->current();
             $invoice->toConsole();
             $this->stackInvoice->next();
         }
+        print('</script>');
         print('<br>END');
     }
 }

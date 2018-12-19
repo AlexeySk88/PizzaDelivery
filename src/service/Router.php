@@ -28,15 +28,13 @@ class Router implements Service, Waylbill{
 		$this->prodArr[] = $prod;
 		$this->matrixDeliv = $this->prodInMatrix($this->prodArr);
 		$tableDeliv = $this->matrixInTable($this->matrixDeliv);
-		if(!$tableDeliv){
+		$res = $this->checkTime($this->prodArr, $tableDeliv, $this->startTime);
+		if(!$res){
 			$this->prodArr = [];
 			$this->num++;
 			$this->startTime = null;
-			return $this->require($prod);			
+			return $this->require($prod);
 		}
-		$this->invoice = null;
-		$this->invoice = new Invoice($this->num);
-		$res = $this->checkTime($this->prodArr, $tableDeliv, $this->startTime);
 		return $res;
 	}
 
@@ -79,12 +77,18 @@ class Router implements Service, Waylbill{
 			$time->modify('+ '.$value.' second');
 			$prod = $prods[$key-1];
 			if($prod->getInterval($time) >= self::MAXTIME){
-				$index = array_search(min($this->matrixDeliv[$key]), $this->matrixDeliv[$key]);
+				$index = array_search(min($this->matrixDeliv[$key]), $this->matrixDeliv[$key]);  // value
 				$this->matrixDeliv[$key][$index] = PHP_INT_MAX;
-				return $this->matrixInTable($this->matrixDeliv);
+				$res = $this->matrixInTable($this->matrixDeliv);
+				if($res){
+					return $this->checkTime($this->prodArr, $res, $this->startTime);
+				}
+				else return false;
 			}
 			$rout = new Delivery($prod);
 			$rout->setTime(clone $time);
+			$this->invoice = null;
+			$this->invoice = new Invoice($this->num);
 			$this->invoice->add(clone $time);
 			$prods[$key-1] = $rout;
 		}

@@ -16,9 +16,8 @@ class Delivery extends Decorator{
 
 	public function status(): string {
 		$p = parent::getProduct();
-		if(isset($p->product)) $p->status();
 		$arr = parent::getAddress();
-		return '<'.$arr[0].'><'.$arr[1].'><br>';
+		return $p->status().'<'.$arr[0].'><'.$arr[1].'>';
 	}
 }
 

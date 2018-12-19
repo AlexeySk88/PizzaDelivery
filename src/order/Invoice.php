@@ -18,7 +18,7 @@ class Invoice{
 		foreach ($this->timeArr as $time) {
 			$str .= '<'.$this->id.'><'.$time->format('H:i:s').'>';
 		}
-		echo("<script>console.log(".$str."');</script>");
+		echo("console.log(".$str.");");
 	}
 }
 ?>

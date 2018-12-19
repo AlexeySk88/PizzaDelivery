@@ -18,8 +18,7 @@ class Cook extends Decorator{
 
 	public function status(): string {
 		$p = parent::getProduct();
-		if(isset($p->product)) $p->status();
-		return '<'.$this->cookTime->format('H:i:s').'>';
+		return $p->status().'<'.$this->cookTime->format('H:i:s').'>';
 	}
 }
 ?>
