@@ -7,9 +7,9 @@ use PD\iface\Product;
 class Pizza implements Product{
 	private static $counter = 1;
 	private $id;
-	protected $address;
-	protected $cookPeriod;
-	protected $orderTime;
+	private $address;
+	private $cookPeriod;
+	private $orderTime;
 
 	public function __construct(\DateTime $orderTime, $address){
 		$this->id = self::$counter++;
@@ -23,7 +23,7 @@ class Pizza implements Product{
 	}
 
 	public function setTime(\DateTime $time){
-		$this->orderTime = $time;
+		$this->orderTime = clone $time;
 	}
 
 	public function getInterval(\DateTime $date){
@@ -33,11 +33,12 @@ class Pizza implements Product{
 	}
 
 	public function getTime(): \DateTime{
-		return $this->orderTime;
+		return clone $this->orderTime;
 	}
 
 	public function status():string {
-		return '<'.$this->id.'>< '.$this->orderTime->format('H:i:s').'>';
+		return $this->id."\t".$this->orderTime->format('H:i:s')."\t";
+		//return $this->id."\t".$this->orderTime->format('H:i:s')."\t".$this->cookPeriod;
 	}
 
 	public function __isset($name){

@@ -11,58 +11,56 @@ use PD\order\Invoice;
 class Application{
     private $timeOrder;
     private $numOrder;
-    private $stackOrder;
-    private $stackInvoice;
+    private $queueOrder;
+    private $queueInvoice;
     private $oven;
     private $deliv;
     
     public function __construct(){
         $this->timeOrder = new \DateTime('2018-12-01 10:0:0');
         $this->numOrder = rand(10, 100); //кол-во заказов 
-        $this->stackOrder = new \SplStack(); 
-        $this->stackInvoice = new \SplStack();
+        $this->queueOrder = new \SplQueue(); 
+        $this->queueInvoice = new \SplQueue();
         $this->oven = new Oven();
         $this->deliv = new Router(); 
     }
 
     public function main(){
         for($i = 0; $i < $this->numOrder; $i++){
-            $this->timeOrder->modify('+ '.rand(1, 30). ' minutes');
-            $this->stackOrder[] = new Pizza(clone $this->timeOrder, [rand(-1000, 1000), rand(-1000, 1000)]);
+            $this->timeOrder->modify('+ '.rand(1, 30).' minutes');
+            $this->queueOrder[] = new Pizza(clone $this->timeOrder, [rand(-1000, 1000), rand(-1000, 1000)]);
         }
         $this->calc();        
     }
 
     private function calc(){
-        $delivpizza = null;
-        $res;
+        print("№\tВремя поступления\tВремя готовки\tX\tY\n------------------------------------------------------------\n");
+        $res = null;
+        $subres;
         $invoice = [];
-        $this->stackOrder->rewind();
-        while($this->stackOrder->valid()){
-            $s =  $this->stackOrder->current();
-            $hotpizza = $this->oven->require($s);
-            $res = $this->deliv->require($hotpizza);
-            if(!$delivpizza) $delivpizza = $res;
-            else if(count($res) <= count($delivpizza)){
-                foreach ($delivpizza as $dp) print(htmlspecialchars($dp->status()).'<br>');
-                $this->stackInvoice[] = $invoice;
-                $res = $this->deliv->require($hotpizza);
+        $this->queueOrder->rewind();
+        while($this->queueOrder->valid()){
+            $hotpizza = $this->oven->require($this->queueOrder->current());
+            $subres = $this->deliv->require($hotpizza);
+            if(!$res) $res = $subres;
+            else if(count($subres) <= count($res)){
+                foreach ($res as $dp) print($dp->status()."\n");
+                $this->queueInvoice[] = $invoice;
+                $subres = $this->deliv->require($hotpizza);
             }
-            $delivpizza = $res;
+            $res = $subres;
             $invoice = $this->deliv->getOrder();
-            $this->stackOrder->next();
+            $this->queueOrder->next();
         }
-        foreach ($delivpizza as $dp) print($dp->status().'<br>');
-        print('<br>');
-        $this->stackInvoice[] = $invoice;
-        print('<script>');
-        $this->stackInvoice->rewind();
-        while($this->stackInvoice->valid()){
-            $inv = $this->stackInvoice->current();
-            $inv->toConsole();
-            $this->stackInvoice->next();
+        foreach ($res as $dp) print($dp->status()."\n");
+        $this->queueInvoice[] = $invoice;
+        $this->queueInvoice->rewind();
+        print("\n№\tВремя доставки1\t№\tВремя доставки2\t№\tВремя доставки3\n-------------------------------------------------------------------------\n");
+        while($this->queueInvoice->valid()){
+            $inv = $this->queueInvoice->current();
+            print($inv->status());
+            $this->queueInvoice->next();
         }
-        print('</script>');
     }
 }
 ?>

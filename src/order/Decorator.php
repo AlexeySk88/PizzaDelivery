@@ -32,12 +32,11 @@ abstract class Decorator implements Product{
 		return $p->address;
 	}
 
-	public function __get($name){
+	public function getId(){
 		$p = self::getProduct();
-		if(!isset($p->$name)) return $p->$name();
-		return $p->$name;
+		if(!isset($p->id)) return $p->getId();
+		return $p->id;
 	}
-
 
 	public function cookPeriod(){
 		$p = self::getProduct();

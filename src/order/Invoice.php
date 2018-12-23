@@ -2,23 +2,20 @@
 namespace PD\order;
 
 class Invoice{
-	private $id;
+	private $id = [];
 	private $timeArr = [];
 
-	public function __construct($id){
-		$this->id = $id;
+	public function add($id, $time){
+		$this->timeArr[] = clone $time;
+		$this->id[] = $id;
 	}
 
-	public function add($time){
-		$this->timeArr[] = $time;
-	}
-
-	public function toConsole(){
+	public function status(){
 		$str = '';
-		foreach ($this->timeArr as $time) {
-			$str .= '<'.$time->format('H:i:s').'>';
+		for($i = 0; $i<count($this->id); $i++){
+			$str .= $this->id[$i]."\t".$this->timeArr[$i]->format('H:i:s')."\t";
 		}
-		print('console.log("<'.$this->id.'>'.$str.'");');
+		return $str."\n";
 	}
 }
 ?>

@@ -16,12 +16,10 @@ class Router implements Service, Waylbill{
 	private const MAXDELIV = 3;
 	private const MAXTIME = 60;
 	private $startTime;
-	private $num = 1;
 
 	public function require(Product $prod){
 		if(count($this->prodArr) == self::MAXDELIV){
 			$this->prodArr = [];
-			$this->num++;
 			$this->startTime = null;
 		}
 		$this->startTime = clone $prod->getTime() > $this->startTime ? $prod->getTime() : $this->startTime;
@@ -30,14 +28,12 @@ class Router implements Service, Waylbill{
 		$tableDeliv = $this->matrixInTable($this->matrixDeliv);
 		if(!$tableDeliv){
 			$this->prodArr = [];
-			$this->num++;
 			$this->startTime = null;
 			return $this->require($prod);
 		}
 		$res = $this->checkTime($this->prodArr, $tableDeliv, $this->startTime);
 		if(!$res){
 			$this->prodArr = [];
-			//$this->num++;
 			$this->startTime = null;
 			return $this->require($prod);
 		}
@@ -79,7 +75,7 @@ class Router implements Service, Waylbill{
 	}
 
 	private function checkTime(array $prods, array $table, \DateTime $time){  //private
-		$this->invoice = new Invoice($this->num);
+		$this->invoice = new Invoice();
 		foreach ($table as $key => $value) {
 			$time->modify('+ '.$value.' second');
 			$prod = $prods[$key-1];
@@ -93,8 +89,8 @@ class Router implements Service, Waylbill{
 				else return false;
 			}
 			$rout = new Delivery($prod);
-			$rout->setTime(clone $time);
-			$this->invoice->add($time);
+			$rout->setTime($time);
+			$this->invoice->add($rout->getId(), $time);
 			$prods[$key-1] = $rout;
 		}
 		return $prods;

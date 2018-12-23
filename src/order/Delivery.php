@@ -4,20 +4,20 @@ namespace PD\order;
 use PD\order\Decorator;
 
 class Delivery extends Decorator{
-	protected $delivTime;
+	private $delivTime;
 
 	public function setTime(\DateTime $time){
-		$this->delivTime = $time;
+		$this->delivTime = clone $time;
 	}
 
 	public function getTime(): \DateTime{
-		return $this->delivTime;
+		return clone $this->delivTime;
 	}
 
 	public function status(): string {
 		$p = parent::getProduct();
 		$arr = parent::getAddress();
-		return $p->status().'<'.$arr[0].'><'.$arr[1].'>';
+		return $p->status()."\t".$arr[0]."\t".$arr[1];
 	}
 }
 
