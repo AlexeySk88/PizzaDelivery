@@ -34,7 +34,7 @@ class Application{
     }
 
     private function calc(){
-        print("№\tВремя поступления\tВремя готовки\tX\tY\n------------------------------------------------------------\n");
+        echo("№\tВремя поступления\tВремя готовки\tX\tY\n------------------------------------------------------------\n");
         $res = null;
         $subres;
         $invoice = [];
@@ -44,7 +44,7 @@ class Application{
             $subres = $this->deliv->require($hotpizza);
             if(!$res) $res = $subres;
             else if(count($subres) <= count($res)){
-                foreach ($res as $dp) print($dp->status()."\n");
+                foreach ($res as $dp) echo($dp->status()."\n");
                 $this->queueInvoice[] = $invoice;
                 $subres = $this->deliv->require($hotpizza);
             }
@@ -52,13 +52,13 @@ class Application{
             $invoice = $this->deliv->getOrder();
             $this->queueOrder->next();
         }
-        foreach ($res as $dp) print($dp->status()."\n");
+        foreach ($res as $dp) echo($dp->status()."\n");
         $this->queueInvoice[] = $invoice;
         $this->queueInvoice->rewind();
-        print("\n№\tВремя доставки1\t№\tВремя доставки2\t№\tВремя доставки3\n-------------------------------------------------------------------------\n");
+        echo("\n№\tВремя доставки1\t№\tВремя доставки2\t№\tВремя доставки3\n-------------------------------------------------------------------------\n");
         while($this->queueInvoice->valid()){
             $inv = $this->queueInvoice->current();
-            print($inv->status());
+            echo($inv->status());
             $this->queueInvoice->next();
         }
     }
