@@ -1,6 +1,7 @@
-PizzaDelivery
-================
-### Quick start:
-composer install<br>
-php index.php
+# PizzaDelivery
 
+## Project setup
+```
+composer install
+php index.php
+```
